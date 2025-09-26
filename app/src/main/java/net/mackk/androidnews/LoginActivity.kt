@@ -1,5 +1,6 @@
 package net.mackk.androidnews
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,13 +47,24 @@ class LoginActivity : ComponentActivity() {
 @Composable
 private fun ActivityContent(innerPadding: PaddingValues = PaddingValues()) {
 
+    // context
+    val context = LocalContext.current
+
     // state
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
     // check for valid user and password
-    fun validInput(): Boolean {
+    fun inputIsValid(): Boolean {
         return (username.length >= 5) && (password.length >= 8)
+    }
+
+    // handle auth
+    fun handleSubmit() {
+        val intent = Intent(context, ResultsActivity::class.java)
+        intent.putExtra("username", username)
+        intent.putExtra("password", password)
+        context.startActivity(intent)
     }
 
     // sanitize input
@@ -79,8 +92,8 @@ private fun ActivityContent(innerPadding: PaddingValues = PaddingValues()) {
             )
             Spacer(Modifier.height(1.dp))
             Text(
-                text = "Username requires at least of 5 characters",
-                modifier = Modifier.alpha(if (username.length != 0 && username.length < 5) 1f else 0f),
+                text = "Username must be at least 5 characters",
+                modifier = Modifier.alpha(if (username.isNotEmpty() && username.length < 5) 1f else 0f),
                 color = Color(0xFFFF0000),
                 style = MaterialTheme.typography.labelSmall
             )
@@ -98,8 +111,8 @@ private fun ActivityContent(innerPadding: PaddingValues = PaddingValues()) {
             )
             Spacer(Modifier.height(1.dp))
             Text(
-                text = "Password requires at least 8 characters",
-                modifier = Modifier.alpha(if (password.length != 0 && password.length < 8) 1f else 0f),
+                text = "Password must be at least 8 characters",
+                modifier = Modifier.alpha(if (password.isNotEmpty() && password.length < 8) 1f else 0f),
                 color = Color(0xFFFF0000),
                 style = MaterialTheme.typography.labelSmall
             )
@@ -109,7 +122,7 @@ private fun ActivityContent(innerPadding: PaddingValues = PaddingValues()) {
 
         // button
         Button(
-            onClick = { }, enabled = validInput()
+            onClick = ::handleSubmit, enabled = inputIsValid()
         ) {
             Text(text = "Submit")
         }
