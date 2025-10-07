@@ -30,7 +30,15 @@ class ResultsActivity : ComponentActivity() {
 private fun ActivityContent(innerPadding: PaddingValues = PaddingValues()) {
 
     // values
-    val articlesList = listOf(sampleArticleData, sampleArticleData, sampleArticleData, sampleArticleData, sampleArticleData, sampleArticleData, sampleArticleData)
+    val articlesList = listOf(
+        sampleArticleData,
+        sampleArticleData,
+        sampleArticleData,
+        sampleArticleData,
+        sampleArticleData,
+        sampleArticleData,
+        sampleArticleData
+    )
 
     LazyColumn(
         modifier = Modifier
@@ -41,6 +49,7 @@ private fun ActivityContent(innerPadding: PaddingValues = PaddingValues()) {
     ) {
         items(articlesList) { ArticleCard(it) }
     }
+
 }
 
 @Preview(showBackground = true)

@@ -5,12 +5,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -28,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -61,7 +64,7 @@ private fun ActivityContent(innerPadding: PaddingValues = PaddingValues()) {
 
     // handle auth
     fun handleSubmit() {
-        val intent = Intent(context, ResultsActivity::class.java)
+        val intent = Intent(context, HomeActivity::class.java)
         intent.putExtra("username", username)
         intent.putExtra("password", password)
         context.startActivity(intent)
@@ -80,6 +83,15 @@ private fun ActivityContent(innerPadding: PaddingValues = PaddingValues()) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+
+        // logo
+        Image(
+            painter = painterResource(R.drawable.logo),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth(0.3f)
+                .padding(bottom = 48.dp)
+        )
 
         // username
         Column(
