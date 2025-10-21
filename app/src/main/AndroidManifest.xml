@@ -13,6 +13,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.News">
         <activity
+            android:name=".LocalActivity"
+            android:exported="false"
+            android:label="@string/title_activity_local"
+            android:theme="@style/Theme.News" />
+        <activity
             android:name=".SourcesActivity"
             android:exported="false"
             android:label="@string/title_activity_sources"
@@ -21,6 +26,11 @@
             android:name=".HomeActivity"
             android:exported="false"
             android:label="@string/title_activity_home"
+            android:theme="@style/Theme.News" />
+        <activity
+            android:name=".TopHeadlinesActivity"
+            android:exported="false"
+            android:label="@string/title_activity_top_headlines"
             android:theme="@style/Theme.News" />
         <activity
             android:name=".ResultsActivity"
@@ -37,6 +47,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
     </application>
 
 </manifest>

@@ -80,14 +80,22 @@ private fun ActivityContent(innerPadding: PaddingValues = PaddingValues()) {
 
         // local news button
         Button(
-            onClick = {},
+            onClick = {
+                // intent
+                val intent = Intent(context, LocalActivity::class.java)
+                context.startActivity(intent)
+            },
         ) {
             Text(text = "Local News")
         }
 
         // local news button
         Button(
-            onClick = {},
+            onClick = {
+                // intent
+                val intent = Intent(context, TopHeadlinesActivity::class.java)
+                context.startActivity(intent)
+            },
         ) {
             Text(text = "Top Headlines")
         }

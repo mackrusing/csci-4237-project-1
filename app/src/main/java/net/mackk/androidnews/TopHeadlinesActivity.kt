@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class ResultsActivity : ComponentActivity() {
+class TopHeadlinesActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,41 +47,37 @@ private fun ActivityContent(innerPadding: PaddingValues = PaddingValues()) {
         else -> null
     }
 
-    // values from prev activity
-    val search = activity?.intent?.getStringExtra("search") ?: ""
-    val sourceSelected = activity?.intent?.getBooleanExtra("source_selected", false) ?: false
-    val sourceId = activity?.intent?.getStringExtra("source_id") ?: ""
-
-    // state
+    // stats
     var apiManager = remember { ApiManager() }
     var articlesList by remember { mutableStateOf<List<ArticleData>>(emptyList()) }
 
     // effects
-    LaunchedEffect(apiManager) {
+    LaunchedEffect(true) {
         val result = withContext(Dispatchers.IO) {
-            if (sourceSelected) {
-                apiManager.getArticlesWithSource(
-                    context.getString(R.string.news_api_key), search, sourceId, 1
-                )
-            } else {
-                apiManager.getArticles(
-                    context.getString(R.string.news_api_key), search, 1
-                )
-            }
+            apiManager.getTopHeadlines(context.getString(R.string.news_api_key), 1)
         }
         articlesList = result
     }
 
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(innerPadding)
-            .padding(horizontal = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(innerPadding),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        items(articlesList) { ArticleCard(it) }
-    }
+        // sources
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(horizontal = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(articlesList) { ArticleCard(it) }
+        }
 
+    }
 }
 
 @Preview(showBackground = true)

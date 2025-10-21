@@ -1,10 +1,12 @@
 package net.mackk.androidnews
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class SourcesActivity : ComponentActivity() {
 
@@ -51,20 +56,22 @@ private fun ActivityContent(innerPadding: PaddingValues = PaddingValues()) {
         else -> null
     }
 
+    // values from prev activity
+    val search = activity?.intent?.getStringExtra("search") ?: ""
+
     // state
     var dropdownExpanded by remember { mutableStateOf(false) }
-    var dropdownCurrent by remember { mutableStateOf("all") }
+    var dropdownCurrent by remember { mutableStateOf("business") }
+    var apiManager = remember { ApiManager() }
+    var sourcesList by remember { mutableStateOf<List<SourceData>>(emptyList()) }
 
-    // values
-    val sourcesList = listOf(
-        sampleSourceData,
-        sampleSourceData,
-        sampleSourceData,
-        sampleSourceData,
-        sampleSourceData,
-        sampleSourceData,
-        sampleSourceData
-    )
+    // effects
+    LaunchedEffect(dropdownCurrent) {
+        val result = withContext(Dispatchers.IO) {
+            apiManager.getSources(context.getString(R.string.news_api_key), dropdownCurrent)
+        }
+        sourcesList = result
+    }
 
     Column(
         modifier = Modifier
@@ -74,7 +81,7 @@ private fun ActivityContent(innerPadding: PaddingValues = PaddingValues()) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // search term
-        Text(text = "Search: ${activity?.intent?.getStringExtra("search")}")
+        Text(text = "Search: $search")
 
         // category
         Box {
@@ -85,9 +92,6 @@ private fun ActivityContent(innerPadding: PaddingValues = PaddingValues()) {
                 expanded = dropdownExpanded,
                 onDismissRequest = { dropdownExpanded = false },
             ) {
-                DropdownMenuItem(
-                    text = { Text(text = "all") },
-                    onClick = { dropdownCurrent = "all" })
                 DropdownMenuItem(
                     text = { Text(text = "business") },
                     onClick = { dropdownCurrent = "business" })
@@ -113,7 +117,13 @@ private fun ActivityContent(innerPadding: PaddingValues = PaddingValues()) {
         }
 
         // skip button
-        Button(onClick = {}) { Text(text = "Skip") }
+        Button(onClick = {
+            // intent
+            val intent = Intent(context, ResultsActivity::class.java)
+            intent.putExtra("search", search)
+            intent.putExtra("source_selected", false)
+            context.startActivity(intent)
+        }) { Text(text = "Skip") }
 
         // sources
         LazyColumn(
@@ -123,7 +133,7 @@ private fun ActivityContent(innerPadding: PaddingValues = PaddingValues()) {
                 .padding(horizontal = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(sourcesList) { SourceCard(it) }
+            items(sourcesList) { SourceCard(it, search) }
         }
 
     }
@@ -135,33 +145,26 @@ private fun ActivityContentPreview() {
     ActivityBoilerplate { innerPadding -> ActivityContent(innerPadding) }
 }
 
-private data class SourceData(
-    val id: String,
-    val name: String,
-    val description: String,
-    val url: String,
-    val category: String,
-    val language: String,
-    val country: String,
-)
-
-private val sampleSourceData = SourceData(
-    id = "abc-news",
-    name = "ABC News",
-    description = "Your trusted source for breaking news, analysis, exclusive interviews, headlines, and videos at ABCNews.com.",
-    url = "https://abcnews.go.com",
-    category = "general",
-    language = "en",
-    country = "us"
-)
-
 @Composable
 private fun SourceCard(
     sourceData: SourceData,
+    search: String,
     modifier: Modifier = Modifier,
 ) {
-    val str = LocalContext.current
-    Column(modifier = modifier.padding(12.dp)) {
+    // context
+    val context = LocalContext.current
+
+    Column(
+        modifier = modifier
+            .padding(12.dp)
+            .clickable(onClick = {
+                // intent
+                val intent = Intent(context, ResultsActivity::class.java)
+                intent.putExtra("search", search)
+                intent.putExtra("source_selected", true)
+                intent.putExtra("source_id", sourceData.id)
+                context.startActivity(intent)
+            })) {
         // source name
         Text(
             text = sourceData.name,

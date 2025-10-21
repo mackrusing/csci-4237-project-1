@@ -1,8 +1,10 @@
 package net.mackk.androidnews
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import net.mackk.androidnews.ui.theme.NewsTheme
@@ -33,8 +34,16 @@ fun ActivityBoilerplate(content: @Composable ((PaddingValues) -> Unit)) {
 
 @Composable
 fun ArticleCard(articleData: ArticleData, modifier: Modifier = Modifier, dbg: Boolean = false) {
-    val str = LocalContext.current
-    Column(modifier = modifier.padding(12.dp)) {
+    val context = LocalContext.current
+    Column(
+        modifier = modifier
+            .padding(12.dp)
+            .clickable(onClick = {
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    data = Uri.parse(articleData.url)
+                }
+                context.startActivity(intent)
+            })) {
         // image
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -77,16 +86,4 @@ fun ArticleCard(articleData: ArticleData, modifier: Modifier = Modifier, dbg: Bo
         Text(text = articleData.description, style = MaterialTheme.typography.bodyMedium)
 
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ArticleCardPreview() {
-    ArticleCard(
-        articleData = sampleArticleData,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min),
-        dbg = true
-    )
 }
